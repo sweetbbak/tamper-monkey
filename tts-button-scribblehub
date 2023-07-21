@@ -1,0 +1,72 @@
+// ==UserScript==
+// @name         Text-to-Speech Button
+// @namespace    http://your-namespace.example.com
+// @version      1.0
+// @description  Adds a button to play the text from all <p> tags using the system's native Text-to-Speech software.
+// @match        *://*/*
+// @match        http*://scribble*
+// @match        *novel*
+// @match        *rainofsnow*
+// @grant        GM_setClipboard
+// @grant        GM_notification
+// ==/UserScript==
+
+(function () {
+  "use strict";
+
+  function sanitizeString(str) {
+    str = str.replace(/[^a-z0-9áéíóúñü \.,_-]/gim, "");
+    return str.trim();
+  }
+
+  function tts(str) {
+    // Use the SpeechSynthesis API to speak the text
+    var speechSynthesis = window.speechSynthesis;
+    var utterance = new SpeechSynthesisUtterance(sanitizeString(str));
+    speechSynthesis.speak(utterance);
+  }
+
+  // Create a button element
+  var ttsButton = document.createElement("button");
+  ttsButton.innerHTML = "Play Text";
+  ttsButton.style.position = "fixed";
+  ttsButton.style.bottom = "20px";
+  ttsButton.style.right = "20px";
+  ttsButton.style.zIndex = "9999";
+
+  // Append the button to the body
+  document.body.appendChild(ttsButton);
+
+  // Add click event listener to the button
+  ttsButton.addEventListener("click", function () {
+    // Get all <p> tags on the page
+    // var paragraphs = document.getElementsByTagName('p');
+    var paragraphs = document.querySelectorAll(".chp_raw p");
+
+    // Concatenate the text from all <p> tags
+    // var textToSpeak = '';
+    var text = "";
+
+    // for (var i = 0; i < paragraphs.length; i++) {
+    //     textToSpeak += paragraphs[i].textContent + ' ';
+    // }
+    // Get all <p> elements
+    // const paragraphs = document.getElementsByTagName('p');
+
+    for (let paragraph of paragraphs) {
+      text += paragraph.innerText + "\n";
+      tts(paragraph.innerText);
+    }
+    // Copy the concatenated text to the clipboard
+    navigator.clipboard.writeText(text);
+    GM_setClipboard(text);
+
+    // Use the SpeechSynthesis API to speak the text
+    // var speechSynthesis = window.speechSynthesis;
+    // var utterance = new SpeechSynthesisUtterance(sanitizeString(text));
+    // speechSynthesis.speak(utterance);
+    // my code
+    // let phrase = new SpeechSynthesisUtterance(text);
+    // speechSynthesis.speak(phrase);
+  });
+})();
